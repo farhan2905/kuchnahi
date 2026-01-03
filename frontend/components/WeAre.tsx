@@ -1,24 +1,55 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function WeAre() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
 
-  // Image expansion: 15vw×20vh → 85vw×50vh (horizontal display, more width than height)
-  const width = useTransform(scrollYProgress, [0.2, 0.6], ["15vw", "85vw"]);
-  const height = useTransform(scrollYProgress, [0.2, 0.6], ["20vh", "50vh"]);
-  const radius = useTransform(scrollYProgress, [0.2, 0.6], ["100px", "20px"]);
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Image expansion: Desktop (15vw×20vh → 85vw×50vh), Mobile (80vw×25vh → 95vw×60vh)
+  const width = useTransform(
+    scrollYProgress,
+    isMobile ? [0.1, 0.5] : [0.2, 0.6],
+    isMobile ? ["80vw", "95vw"] : ["15vw", "85vw"]
+  );
+  const height = useTransform(
+    scrollYProgress,
+    isMobile ? [0.1, 0.5] : [0.2, 0.6],
+    isMobile ? ["25vh", "60vh"] : ["20vh", "50vh"]
+  );
+  const radius = useTransform(
+    scrollYProgress,
+    isMobile ? [0.1, 0.5] : [0.2, 0.6],
+    ["100px", "20px"]
+  );
   
-  // Text connection animation: both move inward toward the image (reduced movement to prevent overlap)
+  // Desktop: Text moves horizontally toward the image
   const weAreX = useTransform(scrollYProgress, [0.2, 0.5], ["0%", "10%"]);
-  const weAreOpacity = useTransform(scrollYProgress, [0.2, 0.5], [1, 0.8]);
   const kuchnahiX = useTransform(scrollYProgress, [0.2, 0.5], ["0%", "-10%"]);
+  
+  // Mobile: Text moves vertically (We are up, Kuchnahi down)
+  const weAreY = useTransform(scrollYProgress, [0.1, 0.5], ["0%", "-20%"]);
+  const kuchnahiY = useTransform(scrollYProgress, [0.1, 0.5], ["0%", "20%"]);
+  
+  // Opacity animations
+  const weAreOpacity = useTransform(scrollYProgress, [0.2, 0.5], [1, 0.8]);
   const kuchnahiOpacity = useTransform(scrollYProgress, [0.2, 0.5], [1, 0.8]);
   
   // Inner text reveal after image expansion
@@ -35,10 +66,14 @@ export default function WeAre() {
         className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden"
       >
         
-        <div className="flex items-center justify-center w-full relative gap-8 md:gap-12">
+        <div className="flex flex-col md:flex-row items-center justify-center w-full relative gap-4 md:gap-12">
           <motion.h2
-            style={{ x: weAreX, opacity: weAreOpacity }}
-            className="text-4xl md:text-6xl lg:text-8xl font-bold text-black whitespace-nowrap z-10 mr-4 md:mr-8 tracking-tighter"
+            style={{
+              x: isMobile ? 0 : weAreX,
+              y: isMobile ? weAreY : 0,
+              opacity: weAreOpacity
+            }}
+            className="text-2xl sm:text-3xl md:text-6xl lg:text-8xl font-bold text-black whitespace-nowrap z-10 tracking-tighter"
           >
             We are
           </motion.h2>
@@ -52,11 +87,11 @@ export default function WeAre() {
               className="w-full h-full object-cover opacity-90"
               style={{ scale: useTransform(scrollYProgress, [0.2, 0.6], [1.6, 1]) }}
             />
-            
+             
             <div className="absolute inset-0 flex items-center justify-center bg-black/20">
               <motion.h3
                 style={{ opacity: textRevealOpacity, y: textRevealY }}
-                className="text-white text-4xl md:text-7xl font-bold text-center px-4 tracking-tighter max-w-4xl"
+                className="text-white text-2xl sm:text-4xl md:text-7xl font-bold text-center px-4 tracking-tighter max-w-4xl"
               >
                 Not just a simple agency.
               </motion.h3>
@@ -64,8 +99,12 @@ export default function WeAre() {
           </motion.div>
 
           <motion.h2
-            style={{ x: kuchnahiX, opacity: kuchnahiOpacity }}
-            className="text-4xl md:text-6xl lg:text-8xl font-bold text-black whitespace-nowrap z-10 ml-4 md:ml-8 tracking-tighter"
+            style={{
+              x: isMobile ? 0 : kuchnahiX,
+              y: isMobile ? kuchnahiY : 0,
+              opacity: kuchnahiOpacity
+            }}
+            className="text-2xl sm:text-3xl md:text-6xl lg:text-8xl font-bold text-black whitespace-nowrap z-10 tracking-tighter"
           >
             Kuchnahi.
           </motion.h2>

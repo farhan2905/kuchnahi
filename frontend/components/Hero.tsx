@@ -101,7 +101,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-gray-400 text-sm animate-bounce">
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-gray-400 text-sm animate-bounce z-50">
         Scroll to explore
       </div>
     </section>
