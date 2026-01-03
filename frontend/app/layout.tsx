@@ -1,12 +1,9 @@
-'use client';
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { useEffect } from "react";
 import "./globals.css";
 import BackgroundController from '@/components/BackgroundController';
 import CustomCursor from '@/components/CustomCursor';
-import { initLenis } from '@/lib/lenis';
+import LenisProvider from '@/components/LenisProvider';
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -23,16 +20,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  useEffect(() => {
-    const lenis = initLenis();
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
-
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased selection:bg-black selection:text-white`}>
+        <LenisProvider />
         <BackgroundController />
         <CustomCursor />
         {children}
